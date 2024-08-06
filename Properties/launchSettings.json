@@ -3,22 +3,12 @@
   "profiles": {
     "http": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchUrl": "swagger",
       "applicationUrl": "http://localhost:7001",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "https": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7002",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "JWT_VALID_ISSUER": "https://dev-z1juj4qzqzqzloyt.us.auth0.com/",
+        "JWT_VALID_AUDIENCE": "http://localhost:7001/",
+        "JWT_ISSUER_SIGNING_KEY": "Tyclv2EsbDMG72GJ4Jy31EQNiYvpNhsE"
       }
     },
   }
