@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.SetAuthentication();
 builder.SetCors();
+builder.SetDbContext();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
