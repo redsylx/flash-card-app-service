@@ -5,15 +5,12 @@ using Main.Models;
 namespace Main.Services;
 
 public class AccountService : ServiceBase {
-    private readonly Context _context;
-    public AccountService(Context context)
+    public AccountService(Context context): base(context)
     {
-        _context = context;
     }
 
     public Account CreateAccount(string email, string username) {
         var newAccount = new Account(email, username);
-        newAccount.GenerateId();
         newAccount.Validate();
 
         if(_context.Account.Any(p => p.Username == username)) throw new BadRequestException("Username already exist");
