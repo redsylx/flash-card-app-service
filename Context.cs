@@ -12,10 +12,12 @@ public class Context : DbContext {
 
     public DbSet<Account> Account { get; set; }
     public DbSet<CardCategory> CardCategory { get; set; }
+    public DbSet<Card> Card { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<CardCategory>().HasOne(cc => cc.Account);
+        modelBuilder.Entity<CardCategory>().HasOne(p => p.Account);
+        modelBuilder.Entity<Card>().HasOne(p => p.CardCategory);
         base.OnModelCreating(modelBuilder);
     }
 

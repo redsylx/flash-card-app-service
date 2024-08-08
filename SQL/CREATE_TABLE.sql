@@ -16,3 +16,18 @@ CREATE TABLE CardCategory (
     LastUpdatedTime DATETIME NOT NULL,
     CONSTRAINT fk_account FOREIGN KEY (AccountId) REFERENCES Account(Id)
 );
+
+CREATE TABLE Card (
+    Id VARCHAR(36) PRIMARY KEY,
+    ClueTxt NVARCHAR(120) NOT NULL,
+    ClueImg NVARCHAR(256),
+    DescriptionTxt NVARCHAR(256) NOT NULL,
+    DescriptionImg NVARCHAR(256),
+    NFrequency INT NOT NULL CHECK (NFrequency >= 0),
+    NCorrect INT NULL,
+    PctCorrect DECIMAL(3,2) NULL CHECK (PctCorrect >= 0 AND PctCorrect <= 1),
+    CardCategoryId VARCHAR(36) NOT NULL,
+    CreatedTime DATETIME NOT NULL,
+    LastUpdatedTime DATETIME NOT NULL,
+    CONSTRAINT fk_cardcategory FOREIGN KEY (CardCategoryId) REFERENCES CardCategory(Id),
+);
