@@ -3,8 +3,6 @@ using System.Text;
 using Main.Consts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -36,13 +34,6 @@ public static class WebApplicationBuilderExtension {
                     .AllowAnyOrigin();
                 }
             );
-        });
-    }
-
-    public static void SetDbContext(this WebApplicationBuilder builder) {
-        var connectionString = builder.Configuration.GetConnectionString(ConnectionStrings.Default) ?? "";
-        builder.Services.AddDbContext<Context>(options => {
-            options.UseSqlServer(connectionString);
         });
     }
 }

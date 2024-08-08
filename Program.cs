@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.SetAuthentication();
 builder.SetCors();
-builder.SetDbContext();
+builder.Services.AddDbContext<Context>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpContextAccessor();

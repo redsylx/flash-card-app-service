@@ -12,6 +12,8 @@ public class Account : ModelBase {
         Username = username;
     }
 
+    public Account() {}
+
     public void Validate() {
         if(string.IsNullOrEmpty(Username)) throw new BadRequestException("Username Can't be empty");
         if(string.IsNullOrEmpty(Email)) throw new BadRequestException("Email Can't be empty");
