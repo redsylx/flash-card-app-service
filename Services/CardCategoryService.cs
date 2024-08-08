@@ -12,7 +12,7 @@ public class CardCategoryService : ServiceBase {
     }
 
     public List<CardCategory> GetCardCategories(string accountId) {
-        return [.. _context.CardCategory.Include(p => p.Account).Where(p => p.Account.Id == accountId)];
+        return [.. _context.CardCategory.Include(p => p.Account).Where(p => p.Account != null && p.Account.Id == accountId)];
     }
 
     public CardCategory CreateCardCategory(string accountId, string name) {
@@ -23,7 +23,7 @@ public class CardCategoryService : ServiceBase {
             Name = name
         };
         newCardCategory.Validate();
-        if(_context.CardCategory.Any(p => p.Account.Id == accountId && p.Name == newCardCategory.Name))
+        if(_context.CardCategory.Any(p => p.Account != null && p.Account.Id == accountId && p.Name == newCardCategory.Name))
             throw new BadRequestException($"Category with name '{newCardCategory.Name}' is already exist");
         _context.CardCategory.Add(newCardCategory);
         _context.SaveChanges();

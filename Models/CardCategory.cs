@@ -7,10 +7,10 @@ namespace Main.Models;
 public class CardCategory : ModelBase {
     public string Name { get; set; } = "";
     public int NCard { get; set; } = 0;
-    public decimal PctCorrect { get; set; }
+    public decimal? PctCorrect { get; set; }
     
     [ForeignKey("AccountId")]
-    public Account Account { get; set; } = new();
+    public virtual Account? Account { get; set; }
 
     public void Validate() {
         if(string.IsNullOrEmpty(Name)) throw new BadRequestException("Name Can't be empty");
