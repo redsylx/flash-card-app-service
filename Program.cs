@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.SetAuthentication();
 builder.SetCors();
 builder.SupressInvalidFilter();
+builder.AddBlobServiceClient();
 builder.Services.AddDbContext<Context>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

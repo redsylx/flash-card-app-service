@@ -1,5 +1,7 @@
 using System;
 using System.Text;
+using Azure.Storage;
+using Azure.Storage.Blobs;
 using Main.Consts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -42,5 +44,14 @@ public static class WebApplicationBuilderExtension {
         builder.Services.Configure<ApiBehaviorOptions>(options => {
             options.SuppressModelStateInvalidFilter = true;
         });
+    }
+    
+    public static void AddBlobServiceClient(this WebApplicationBuilder builder) {
+        var accountName = Environment.GetEnvironmentVariable(EnvironmentVariables.STORAGE_ACCOUNT_NAME) ?? "";
+        var accountKey = Environment.GetEnvironmentVariable(EnvironmentVariables.STORAGE_ACCOUNT_KEY) ?? "";
+        builder.Services.AddSingleton(x => new BlobServiceClient(
+            new Uri($"https://{accountName}.blob.core.windows.net"),
+            new StorageSharedKeyCredential(accountName, accountKey))
+        );
     }
 }
