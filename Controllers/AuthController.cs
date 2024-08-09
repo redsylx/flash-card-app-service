@@ -18,7 +18,10 @@ public class AuthController : ControllerBase<AuthController> {
     [HttpGet]
     public IActionResult Get() {
         var email = _httpContextAccessor.GetClaim(ClaimTypeConst.Email);
-        new AccountService(_context).CheckAccount(email);
+        var newAccount = new AccountService(_context).CheckAccount(email);
+        if(newAccount != null) {
+            new CardCategoryService(_context).CreateCardCategory(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
+        }
         return new OkResult();
     }
 

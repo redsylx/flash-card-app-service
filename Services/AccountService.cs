@@ -10,12 +10,13 @@ public class AccountService : ServiceBase {
     {
     }
 
-    public void CheckAccount(string email) {
+    public Account? CheckAccount(string email) {
         var account = new Account(email);
         Validation.Validate(account);
-        if(_context.Account.Any(p => p.Email == email)) return;
+        if(_context.Account.Any(p => p.Email == email)) return null;
         _context.Account.Add(account);
         _context.SaveChanges();
+        return account;
     }
 
     public Account UpdateAccountUsername(string email, string username) {
