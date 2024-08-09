@@ -1,6 +1,5 @@
 using Main.Extensions;
 using Main.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,11 +15,18 @@ public class AuthController : ControllerBase<AuthController> {
         _httpContextAccessor = haccess?.HttpContext;
     }
 
+    [HttpGet]
+    public IActionResult Get() {
+        var email = _httpContextAccessor.GetClaim(ClaimTypeConst.Email);
+        new AccountService(_context).CheckAccount(email);
+        return new OkResult();
+    }
+
     [HttpPut]
     public IActionResult Put([FromQuery] string username) {
         var email = _httpContextAccessor.GetClaim(ClaimTypeConst.Email);
         var accountService = new AccountService(_context);
-        accountService.CreateAccount(email, username);
+        accountService.UpdateAccountUsername(email, username);
         return new OkResult();
     }
 }

@@ -3,6 +3,7 @@ using System.Text;
 using Main.Consts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -34,6 +35,12 @@ public static class WebApplicationBuilderExtension {
                     .AllowAnyOrigin();
                 }
             );
+        });
+    }
+
+    public static void SupressInvalidFilter(this WebApplicationBuilder builder) {
+        builder.Services.Configure<ApiBehaviorOptions>(options => {
+            options.SuppressModelStateInvalidFilter = true;
         });
     }
 }
