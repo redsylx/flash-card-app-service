@@ -31,3 +31,15 @@ CREATE TABLE Card (
     LastUpdatedTime DATETIME NOT NULL,
     CONSTRAINT fk_cardcategory FOREIGN KEY (CardCategoryId) REFERENCES CardCategory(Id),
 );
+
+CREATE TABLE CardVersion (
+    Id VARCHAR(36) PRIMARY KEY,
+    ClueTxt NVARCHAR(120) NOT NULL,
+    ClueImg NVARCHAR(256),
+    DescriptionTxt NVARCHAR(256) NOT NULL,
+    DescriptionImg NVARCHAR(256),
+    CardId VARCHAR(36) NOT NULL,
+    CreatedTime DATETIME NOT NULL,
+    LastUpdatedTime DATETIME NOT NULL,
+    CONSTRAINT fk_card FOREIGN KEY (CardId) REFERENCES Card(Id),
+);

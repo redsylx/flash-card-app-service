@@ -15,6 +15,16 @@ public class CardCategoryService : ServiceBase {
         return [.. _context.CardCategory.Include(p => p.Account).Where(p => p.Account != null && p.Account.Id == accountId)];
     }
 
+    public CardCategory CountNCard(string cardCategoryId) {
+        var cardCategory = _context.CardCategory.FirstOrDefault(p => p.Id == cardCategoryId)
+            ?? throw new BadRequestException($"Category with id {cardCategoryId} is not found");
+        var totalCard = _context.Card.Count(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId);
+        cardCategory.NCard = totalCard;
+        _context.CardCategory.Update(cardCategory);
+        _context.SaveChanges();
+        return cardCategory;
+    }
+
     public CardCategory CreateCardCategory(string accountId, string name) {
         var account = _context.Account.FirstOrDefault(p => p.Id == accountId) 
             ?? throw new BadRequestException($"Account with id {accountId} is not found");
