@@ -14,12 +14,14 @@ public class Context : DbContext {
     public DbSet<CardCategory> CardCategory { get; set; }
     public DbSet<Card> Card { get; set; }
     public DbSet<CardVersion> CardVersion { get; set; }
+    public DbSet<Game> Game { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CardCategory>().HasOne(p => p.Account);
         modelBuilder.Entity<Card>().HasOne(p => p.CardCategory);
         modelBuilder.Entity<CardVersion>().HasOne(p => p.Card);
+        modelBuilder.Entity<Game>().HasOne(p => p.Account);
         base.OnModelCreating(modelBuilder);
     }
 

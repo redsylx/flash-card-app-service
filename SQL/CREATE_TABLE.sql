@@ -43,3 +43,15 @@ CREATE TABLE CardVersion (
     LastUpdatedTime DATETIME NOT NULL,
     CONSTRAINT fk_card FOREIGN KEY (CardId) REFERENCES Card(Id),
 );
+
+CREATE TABLE Game (
+    Id VARCHAR(255) PRIMARY KEY,
+    CreatedTime DATETIME NOT NULL,
+    LastUpdatedTime DATETIME NOT NULL,
+    Status VARCHAR(50) NOT NULL,
+    NCard INT NOT NULL CHECK (NCard BETWEEN 10 AND 30),
+    PctCorrect DECIMAL(5,2) NOT NULL CHECK (PctCorrect BETWEEN 0 AND 1),
+    HideDurationInSecond INT NOT NULL CHECK (HideDurationInSecond BETWEEN 5 AND 120),
+    AccountId VARCHAR(36) NOT NULL,
+    CONSTRAINT fk_account_game FOREIGN KEY (AccountId) REFERENCES Account(Id),
+);
