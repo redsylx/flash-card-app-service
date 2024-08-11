@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Main.Models;
@@ -11,6 +12,7 @@ public class Card : ModelBase
     public int NFrequency { get; set; }
     public int? NCorrect { get; set; }
     public decimal? PctCorrect { get; set; }
+    public string CurrentVersionId { get; set; } = Guid.NewGuid().ToString();
     [ForeignKey("CardCategoryId")]
     public virtual CardCategory? CardCategory { get; set; }
 
@@ -20,5 +22,17 @@ public class Card : ModelBase
         DescriptionTxt = descriptionTxt;
         ClueImg = clueImg;
         DescriptionImg = descriptionImg;
+        CurrentVersionId = Guid.NewGuid().ToString();
+    }
+
+    public void Update(bool isCorrect) {
+        NFrequency += 1;
+        NCorrect ??= 0;
+        NCorrect+= isCorrect ? 1 : 0;
+    }
+
+    public void CalculatePctCorrect() {
+        if(NCorrect == null) return;
+        PctCorrect = (decimal) NCorrect / NFrequency;
     }
 }

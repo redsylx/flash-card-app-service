@@ -11,7 +11,7 @@ public class CardVersionService : ServiceBase {
     {
     }
 
-    public CardVersion Create(string cardId, string clueTxt, string descriptionTxt, string? clueImg, string? DescriptionImg) {
+    public CardVersion Create(string cardVersionId, string cardId, string clueTxt, string descriptionTxt, string? clueImg, string? DescriptionImg) {
         if(string.IsNullOrEmpty(cardId)) throw new BadRequestException("cardId is missing");
         var card = _context.Card.FirstOrDefault(p => p.Id == cardId)
             ?? throw new BadRequestException($"Card with id {cardId} is not found");
@@ -20,7 +20,8 @@ public class CardVersionService : ServiceBase {
             ClueImg = clueImg,
             DescriptionTxt = descriptionTxt,
             DescriptionImg = DescriptionImg,
-            Card = card
+            Card = card,
+            Id = cardVersionId,
         };
         _context.CardVersion.Add(newCardVersion);
         _context.SaveChanges();

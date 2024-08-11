@@ -30,6 +30,8 @@ public class GameService : ServiceBase {
         var existingGame = _context.Game.FirstOrDefault(p => p.Id == gameId)
             ?? throw new BadRequestException($"Card with id {gameId} is not found");
         if(existingGame.Status == GameConst.FINISH) return existingGame;
+        var isNotAnsweredAll = _context.GameDetail.Any(p => p.Game != null && p.Game.Id == gameId && p.IsCorrect == null);
+        if(isNotAnsweredAll) throw new BadRequestException($"All card must be answered");
         existingGame.Finish();
         _context.Game.Update(existingGame);
         _context.SaveChanges();

@@ -1,10 +1,11 @@
+using System.Linq;
 using Main.Exceptions;
-using Main.Models;
 using Main.Services;
 using Main.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Main.DTO.GameDto;
 
 namespace Main.Controllers;
 
@@ -15,11 +16,16 @@ public class GameController : ControllerBase<GameController> {
 
     [HttpPost]
     [AllowAnonymous]
-    public IActionResult Post([FromBody] Game dto) {
+    public IActionResult Post([FromBody] CreateGameDTO dto) {
+        if(dto is null) throw new BadRequestException("CreateGameDTO is required");
+        var cardService = new CardService(_context);
+        var generatedCards = cardService.Generate(dto.NCard, dto.CategoryIds);
         var gameService = new GameService(_context);
-        var newCard = gameService.Create(dto.Account?.Id ?? "", dto.NCard, dto.HideDurationInSecond);
-        newCard.Account = null;
-        return new OkObjectResult(newCard);
+        var newGame = gameService.Create(dto.AccountId, dto.NCard, dto.HideDurationInSecond);
+        var gameDetailService = new GameDetailService(_context);
+        gameDetailService.Create(generatedCards.Select(p => p.CurrentVersionId).ToList(), newGame.Id);
+        newGame.Account = null;
+        return new OkObjectResult(newGame);
     }
 
     [HttpPut]
@@ -27,7 +33,9 @@ public class GameController : ControllerBase<GameController> {
     [Route("finish")]
     public IActionResult Put([FromQuery] string gameId) {
         var gameService = new GameService(_context);
-        var game = gameService.Finish(gameId);
+        gameService.Finish(gameId);
+        var cardService = new CardService(_context);
+        cardService.Finish(gameId);
         return new OkResult();
     }
 
