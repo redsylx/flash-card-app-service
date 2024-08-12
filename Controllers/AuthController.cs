@@ -19,10 +19,10 @@ public class AuthController : ControllerBase<AuthController> {
     public IActionResult Get() {
         var email = _httpContextAccessor.GetClaim(ClaimTypeConst.Email);
         var newAccount = new AccountService(_context).CheckAccount(email);
-        if(newAccount != null) {
+        if(string.IsNullOrEmpty(newAccount.Username)) {
             new CardCategoryService(_context).CreateCardCategory(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
         }
-        return new OkResult();
+        return new OkObjectResult(new { username = newAccount.Username });
     }
 
     [HttpPut]

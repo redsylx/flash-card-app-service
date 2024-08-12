@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Main.Exceptions;
 using Main.Models;
@@ -10,10 +11,11 @@ public class AccountService : ServiceBase {
     {
     }
 
-    public Account? CheckAccount(string email) {
+    public Account CheckAccount(string email) {
         var account = new Account(email);
         Validation.Validate(account);
-        if(_context.Account.Any(p => p.Email == email)) return null;
+        var existingAccount = _context.Account.FirstOrDefault(p => p.Email == email);
+        if(existingAccount != null) return existingAccount;
         _context.Account.Add(account);
         _context.SaveChanges();
         return account;
