@@ -14,15 +14,13 @@ public static class WebApplicationBuilderExtension {
     public static void SetAuthentication(this WebApplicationBuilder builder) {
         var validIssuer = Environment.GetEnvironmentVariable(EnvironmentVariables.Issuer) ?? "";
         var validAudience = Environment.GetEnvironmentVariable(EnvironmentVariables.Audience) ?? "";
-        var issuerSigningKey = Environment.GetEnvironmentVariable(EnvironmentVariables.SigningKey) ?? "";
+        // var issuerSigningKey = Environment.GetEnvironmentVariable(EnvironmentVariables.SigningKey) ?? "";
         
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options => {
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    ValidIssuer = validIssuer,
-                    ValidAudience = validAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(issuerSigningKey))
-                };
+                options.Authority = validIssuer;
+                options.Audience = validAudience;
+                options.TokenValidationParameters.ValidIssuer = validIssuer;
             });
     }
 

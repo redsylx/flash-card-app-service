@@ -17,7 +17,7 @@ public class AuthController : ControllerBase<AuthController> {
 
     [HttpGet]
     public IActionResult Get() {
-        var email = _httpContextAccessor.GetClaim(ClaimTypeConst.Email);
+        var email = _httpContextAccessor.GetEmail();
         var newAccount = new AccountService(_context).CheckAccount(email);
         if(string.IsNullOrEmpty(newAccount.Username)) {
             new CardCategoryService(_context).CreateCardCategory(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
@@ -27,7 +27,7 @@ public class AuthController : ControllerBase<AuthController> {
 
     [HttpPut]
     public IActionResult Put([FromQuery] string username) {
-        var email = _httpContextAccessor.GetClaim(ClaimTypeConst.Email);
+        var email = _httpContextAccessor.GetEmail();
         var accountService = new AccountService(_context);
         accountService.UpdateAccountUsername(email, username);
         return new OkResult();
