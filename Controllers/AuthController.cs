@@ -22,7 +22,7 @@ public class AuthController : ControllerBase<AuthController> {
         if(string.IsNullOrEmpty(newAccount.Username)) {
             new CardCategoryService(_context).CreateCardCategory(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
         }
-        return new OkObjectResult(new { username = newAccount.Username });
+        return new OkObjectResult(new { username = newAccount.Username, id = newAccount.Id });
     }
 
     [HttpPut]
