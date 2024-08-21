@@ -37,8 +37,8 @@ public class CardController : ControllerBase<CardController> {
     [HttpGet]
     [Route("list")]
     [AllowAnonymous]
-    public IActionResult List([FromQuery] PaginationRequest paginationRequest) {
+    public IActionResult List([FromQuery] PaginationRequest paginationRequest, [FromQuery] string cardCategoryId) {
         var cardService = new CardService(_context);
-        return new OkObjectResult(cardService.List(paginationRequest));
+        return new OkObjectResult(cardService.List(paginationRequest, cardCategoryId));
     }
 }

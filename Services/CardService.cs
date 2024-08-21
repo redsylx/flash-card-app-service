@@ -68,9 +68,9 @@ public class CardService : ServiceBase {
         _context.SaveChanges();
     }
 
-    public PaginationResult<Card> List(PaginationRequest req)
+    public PaginationResult<Card> List(PaginationRequest req, string cardCategoryId)
     {
-        var query = _context.Card.AsQueryable();
+        var query = _context.Card.Where(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId).AsQueryable();
         return GetPaginationResult(query, req);
     }
 }
