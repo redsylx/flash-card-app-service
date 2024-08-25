@@ -6,6 +6,7 @@ namespace Main.Models;
 
 public class CardCategory : ModelBase {
     public string Name { get; set; } = "";
+    public bool IsDelete { get; set; } = false;
     public int NCard { get; set; } = 0;
     public decimal? PctCorrect { get; set; }
     

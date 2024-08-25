@@ -20,7 +20,7 @@ public class AuthController : ControllerBase<AuthController> {
         var email = _httpContextAccessor.GetEmail();
         var newAccount = new AccountService(_context).CheckAccount(email);
         if(string.IsNullOrEmpty(newAccount.Username)) {
-            new CardCategoryService(_context).CreateCardCategory(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
+            new CardCategoryService(_context).Create(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
         }
         return new OkObjectResult(new { username = newAccount.Username, id = newAccount.Id });
     }

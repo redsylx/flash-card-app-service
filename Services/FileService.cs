@@ -47,7 +47,7 @@ public class FileService {
         var sasUrl = $"{blobClient.Uri}?{sasToken}";
 
         return new UploadResult {
-            FileName = fileName,
+            FileName = blobName,
             UploadUrl = sasUrl,
             MaxSize = maxFileSize
         };

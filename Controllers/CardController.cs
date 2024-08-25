@@ -20,7 +20,7 @@ public class CardController : ControllerBase<CardController> {
         var cardCategoryService = new CardCategoryService(_context);
         cardCategoryService.CountNCard(dto.CardCategory?.Id ?? "");
         var cardVersionService = new CardVersionService(_context);
-        cardVersionService.Create(newCard.CurrentVersionId, newCard.Id, newCard.ClueTxt, newCard.DescriptionTxt, newCard.ClueImg, newCard.DescriptionImg);
+        cardVersionService.CreateOrUpdate(newCard.CurrentVersionId, newCard.Id, newCard.ClueTxt, newCard.DescriptionTxt, newCard.ClueImg, newCard.DescriptionImg);
         return new OkObjectResult(newCard);
     }
 
@@ -30,7 +30,10 @@ public class CardController : ControllerBase<CardController> {
         var cardService = new CardService(_context);
         var updatedCard = cardService.Update(dto.Id, dto.ClueTxt, dto.DescriptionTxt, dto.ClueImg, dto.DescriptionImg);
         var cardVersionService = new CardVersionService(_context);
-        cardVersionService.Create(updatedCard.CurrentVersionId, updatedCard.Id, updatedCard.ClueTxt, updatedCard.DescriptionTxt, updatedCard.ClueImg, updatedCard.DescriptionImg);
+        var cardVersion = cardVersionService.CreateOrUpdate(updatedCard.CurrentVersionId, updatedCard.Id, updatedCard.ClueTxt, updatedCard.DescriptionTxt, updatedCard.ClueImg, updatedCard.DescriptionImg);
+        updatedCard.CurrentVersionId = cardVersion.Id;
+        _context.Card.Update(updatedCard);
+        _context.SaveChanges();
         return new OkObjectResult(updatedCard);
     }
 

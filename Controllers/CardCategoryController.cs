@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using Main.Models;
 using Main.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +22,38 @@ public class CardCategoryController : ControllerBase<CardCategoryController> {
     [HttpPost]
     public ActionResult<List<CardCategory>> Create([FromQuery] string accountId, string name) {
         var cardCategoryService = new CardCategoryService(_context);
-        return new OkObjectResult(cardCategoryService.CreateCardCategory(accountId, name));
+        return new OkObjectResult(cardCategoryService.Create(accountId, name));
     }
+
+    [HttpDelete]
+    public ActionResult Delete([FromQuery] string accountId, string categoryId) {
+        var cardCategoryService = new CardCategoryService(_context);
+        cardCategoryService.Delete(accountId, categoryId);
+        var cardService = new CardService(_context);
+        return new OkResult();
+    }
+
+    [HttpPut]
+    public ActionResult Update([FromQuery] string accountId, string categoryId, string newCategoryName) {
+        var cardCategoryService = new CardCategoryService(_context);
+        cardCategoryService.Update(accountId, categoryId, newCategoryName);
+        return new OkResult();
+    }
+
+    [HttpPost]
+    [Route("generate")]
+    [AllowAnonymous]
+    public ActionResult Generate([FromBody] GenerateDto dto, [FromQuery] string categoryId) {
+        var category = _context.CardCategory.FirstOrDefault(p => p.Id == categoryId);
+        var cardService = new CardService(_context);
+        foreach(var p in dto.Cards) {
+            cardService.CreateCard(categoryId, p.ClueTxt, p.DescriptionTxt, null, null);
+        }
+        return new OkResult();
+    }
+}
+
+
+public class GenerateDto {
+    public Card[] Cards { get; set; }
 }

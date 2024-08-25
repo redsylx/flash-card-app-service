@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Main.Consts;
 using Main.Exceptions;
 using Main.Models;
 using Main.Utils;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace Main.Services;
 
@@ -38,8 +41,6 @@ public class GameDetailService : ServiceBase {
             ?? throw new BadRequestException($"Game with id {gameId} is not found or already finish");
         var currentGameDetail = _context.GameDetail.FirstOrDefault(p => p.Id == gameDetail.Id)
             ?? throw new BadRequestException($"GameDetail with id {gameDetail.Id} is not found");
-        if(gameDetail.IsCorrect is null)
-            throw new BadRequestException($"field IsCorrect can only be true or false");
         currentGameDetail.Update(gameDetail.IsCorrect);
         _context.GameDetail.Update(currentGameDetail);
         _context.SaveChanges();
@@ -50,5 +51,19 @@ public class GameDetailService : ServiceBase {
     {
         var query = _context.GameDetail.Where(p => p.Game != null && p.Game.Id == gameId).AsQueryable();
         return GetPaginationResult(query, req);
+    }
+
+    public List<string> Delete(string gameId, string accountId)
+    {
+        var gameDetails = _context.GameDetail.Include(p => p.Game).Where(p => p.Game != null && p.Game.Account != null && p.Game.Account.Id == accountId && p.Game.Status == GameConst.FINISH).ToList();
+        var deletedGameDetails = gameDetails.Where(p => p.Game != null && p.Game.Id == gameId);
+        var otherGameDetails = gameDetails.Where(p => p.Game != null && p.Game.Id != gameId);
+
+        var deletedCardVersionIds = deletedGameDetails.Select(p => p.CardVersion?.Id ?? "").ToHashSet();
+        var otherCardVersionIds = otherGameDetails.Select(p => p.CardVersion?.Id ?? "").ToHashSet();
+
+        _context.GameDetail.RemoveRange(deletedGameDetails);
+        
+        return deletedCardVersionIds.Except(otherCardVersionIds).ToList();
     }
 }

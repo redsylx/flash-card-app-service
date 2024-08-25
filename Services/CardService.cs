@@ -61,7 +61,7 @@ public class CardService : ServiceBase {
         var mapGameDetails = gameDetails.GroupBy(p => p.CardVersion?.Card?.Id ?? "").ToDictionary(p => p.Key, p => p.ToList());
         foreach (var card in cards) {
             if(mapGameDetails.TryGetValue(card.Id, out var listGameDetail))
-            listGameDetail.ForEach(p => card.Update(p.IsCorrect ?? false));
+            listGameDetail.ForEach(p => card.Update(p.IsCorrect));
             card.CalculatePctCorrect();
         }
         _context.Card.UpdateRange(cards);
@@ -72,5 +72,14 @@ public class CardService : ServiceBase {
     {
         var query = _context.Card.Where(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId).AsQueryable();
         return GetPaginationResult(query, req);
+    }
+
+    public void Delete(string cardId) {
+        var card = _context.Card.FirstOrDefault(p => p.Id == cardId) 
+            ?? throw new BadRequestException($"Card with id {cardId} is not found");
+
+        card.Delete();
+        _context.Card.Update(card);
+        _context.SaveChangesAsync();
     }
 }
