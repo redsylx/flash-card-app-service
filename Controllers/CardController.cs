@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AutoMapper;
 using Azure.Storage.Blobs;
 using Main.Consts;
@@ -67,6 +66,15 @@ public class CardController : ControllerBase<CardController> {
         var resultDto = new PaginationResult<CardDto>(listDto, result.TotalCount, result.PageNumber, result.MaxPageNumber, result.PageSize);
         AddSasToken(resultDto.Items);
         return new OkObjectResult(resultDto);
+    }
+
+    [HttpDelete]
+    public IActionResult Delete([FromQuery] string cardId) {
+        var cardService = new CardService(_context);
+        var deletedCard = cardService.Delete(cardId);
+        var cardCategoryService = new CardCategoryService(_context);
+        cardCategoryService.CountNCard(deletedCard.CardCategory?.Id ?? "");
+        return new OkResult();
     }
 
     private void AddSasToken(CardDto card) {

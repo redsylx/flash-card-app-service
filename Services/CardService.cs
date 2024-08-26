@@ -70,16 +70,16 @@ public class CardService : ServiceBase {
 
     public PaginationResult<Card> List(PaginationRequest req, string cardCategoryId)
     {
-        var query = _context.Card.Where(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId).AsQueryable();
+        var query = _context.Card.Where(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId && !p.IsDelete).AsQueryable();
         return GetPaginationResult(query, req);
     }
 
-    public void Delete(string cardId) {
-        var card = _context.Card.FirstOrDefault(p => p.Id == cardId) 
+    public Card Delete(string cardId) {
+        var card = _context.Card.Include(p => p.CardCategory).FirstOrDefault(p => p.Id == cardId) 
             ?? throw new BadRequestException($"Card with id {cardId} is not found");
-
-        card.Delete();
+        card.IsDelete = true;
         _context.Card.Update(card);
-        _context.SaveChangesAsync();
+        _context.SaveChanges();
+        return card;
     }
 }

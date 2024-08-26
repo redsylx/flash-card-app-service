@@ -20,7 +20,7 @@ public class CardCategoryService : ServiceBase {
     public CardCategory CountNCard(string cardCategoryId) {
         var cardCategory = _context.CardCategory.FirstOrDefault(p => p.Id == cardCategoryId)
             ?? throw new BadRequestException($"Category with id {cardCategoryId} is not found");
-        var totalCard = _context.Card.Count(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId);
+        var totalCard = _context.Card.Count(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId && !p.IsDelete);
         cardCategory.NCard = totalCard;
         _context.CardCategory.Update(cardCategory);
         _context.SaveChanges();
