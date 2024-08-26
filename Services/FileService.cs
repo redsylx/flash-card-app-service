@@ -19,6 +19,14 @@ public class FileService {
         _blobServiceClient = blobServiceClient;
     }
     
+    public string GetSasToken(string container, string blobName)
+    {
+        var containerClient = _blobServiceClient.GetBlobContainerClient(container);
+        var blobClient = containerClient.GetBlobClient(blobName);
+        var sasToken = blobClient.GenerateSasUri(BlobSasPermissions.Read, DateTimeOffset.UtcNow.AddHours(1));
+        return sasToken.ToString();
+    }
+
     public UploadResult UploadImage(string fileName) {
         var fileExtension = System.IO.Path.GetExtension(fileName).ToLower();
 
