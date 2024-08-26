@@ -9,6 +9,7 @@ builder.SetAuthentication();
 builder.SetCors();
 builder.SupressInvalidFilter();
 builder.AddBlobServiceClient();
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddDbContext<Context>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
