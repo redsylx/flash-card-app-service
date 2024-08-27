@@ -13,7 +13,6 @@ public class UploadController : ControllerCore {
     }
 
     [HttpGet("image")]
-    [AllowAnonymous]
     public IActionResult UploadUrl([FromQuery] string fileName)
     {
         var uploadService = new FileService(_blobServiceClient);

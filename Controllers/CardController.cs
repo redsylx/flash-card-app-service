@@ -28,7 +28,6 @@ public class CardController : ControllerBase<CardController> {
     }
 
     [HttpPost]
-    [AllowAnonymous]
     public IActionResult Post([FromBody] Card dto) {
         var cardService = new CardService(_context);
         var newCard = cardService.CreateCard(dto.CardCategory?.Id ?? "", dto.ClueTxt, dto.DescriptionTxt, dto.ClueImg, dto.DescriptionImg);
@@ -42,7 +41,6 @@ public class CardController : ControllerBase<CardController> {
     }
 
     [HttpPut]
-    [AllowAnonymous]
     public IActionResult Put([FromBody] Card dto) {
         var cardService = new CardService(_context);
         var updatedCard = cardService.Update(dto.Id, dto.ClueTxt, dto.DescriptionTxt, dto.ClueImg, dto.DescriptionImg);
@@ -58,7 +56,6 @@ public class CardController : ControllerBase<CardController> {
 
     [HttpGet]
     [Route("list")]
-    [AllowAnonymous]
     public IActionResult List([FromQuery] PaginationRequest paginationRequest, [FromQuery] string cardCategoryId) {
         var cardService = new CardService(_context);
         var result = cardService.List(paginationRequest, cardCategoryId);

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Main.Consts;
+using System;
 
 namespace Main.Controllers;
 
@@ -20,7 +21,10 @@ public class AuthController : ControllerBase<AuthController> {
         var email = _httpContextAccessor.GetEmail();
         var newAccount = new AccountService(_context).CheckAccount(email);
         if(string.IsNullOrEmpty(newAccount.Username)) {
-            new CardCategoryService(_context).Create(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
+            try {
+                new CardCategoryService(_context).Create(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
+            } catch (Exception e) {
+            }
         }
         return new OkObjectResult(new { username = newAccount.Username, id = newAccount.Id });
     }
