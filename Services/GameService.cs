@@ -11,6 +11,12 @@ public class GameService : ServiceBase {
     {
     }
 
+    public Game Get(string accountId, string gameId) {
+        var game = _context.Game.FirstOrDefault(p => p.Account != null && p.Account.Id == accountId && p.Id == gameId)
+            ?? throw new BadRequestException($"Game with id {gameId} is missing");
+        return game;
+    }
+
     public Game Create(string accountId, int nCard, int hideDurationInSecond) {
         if(string.IsNullOrEmpty(accountId)) throw new BadRequestException("accountId is missing");
         var account = _context.Account.FirstOrDefault(p => p.Id == accountId)

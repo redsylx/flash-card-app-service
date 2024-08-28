@@ -62,6 +62,8 @@ CREATE TABLE GameDetail (
     CreatedTime DATETIME NOT NULL,
     LastUpdatedTime DATETIME NOT NULL,
     IsCorrect BIT,
+    IsAnswered BIT,
+    IndexNumber INT,
     GameId VARCHAR(36) NOT NULL,
     CardVersionId VARCHAR(36) NOT NULL,
     CONSTRAINT fk_gamedetail_game FOREIGN KEY (GameId) REFERENCES Game(Id),

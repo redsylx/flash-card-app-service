@@ -15,8 +15,6 @@ public class GameController : ControllerBase<GameController> {
     {
     }
 
-    [HttpPost]
-    [AllowAnonymous]
     public IActionResult Post([FromBody] CreateGameDTO dto) {
         if(dto is null) throw new BadRequestException("CreateGameDTO is required");
         var cardService = new CardService(_context);
@@ -29,8 +27,14 @@ public class GameController : ControllerBase<GameController> {
         return new OkObjectResult(newGame);
     }
 
+    [HttpGet]
+    public IActionResult Get([FromQuery] string accountId, string gameId) {
+        var gameService = new GameService(_context);
+        var game = gameService.Get(accountId, gameId);
+        return new OkObjectResult(game);
+    }
+
     [HttpPut]
-    [AllowAnonymous]
     [Route("finish")]
     public IActionResult Put([FromQuery] string gameId) {
         var gameService = new GameService(_context);
@@ -53,7 +57,6 @@ public class GameController : ControllerBase<GameController> {
 
     [HttpGet]
     [Route("list")]
-    [AllowAnonymous]
     public IActionResult List([FromQuery] PaginationRequest paginationRequest, string accountId) {
         if(string.IsNullOrEmpty(accountId)) throw new BadRequestException("accountId is missing from query");
         var gameService = new GameService(_context);

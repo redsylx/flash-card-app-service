@@ -21,12 +21,13 @@ public class GameDetailService : ServiceBase {
         var game = _context.Game.FirstOrDefault(p => p.Id == gameId)
             ?? throw new BadRequestException($"Game with id {gameId} is not found");
         var mapCardVersion = _context.CardVersion.Where(p => cardVersionIds.Contains(p.Id)).ToList().ToDictionary(p => p.Id);
-
+        var indexNumber = 0;
         var newGameDetails = cardVersionIds.Select(p => {
             if(!mapCardVersion.TryGetValue(p, out var cardVersion)) throw new BadRequestException($"cardVersion id {p} is not found");
             return new GameDetail {
                 CardVersion = cardVersion,
-                Game = game
+                Game = game,
+                IndexNumber = indexNumber++
             };
         }).ToList();
         _context.GameDetail.AddRange(newGameDetails);
@@ -39,12 +40,16 @@ public class GameDetailService : ServiceBase {
         var gameId = gameDetail.Game?.Id ?? "";
         var existingGame = _context.Game.FirstOrDefault(p => p.Id == gameId && p.Status == GameConst.PLAYING)
             ?? throw new BadRequestException($"Game with id {gameId} is not found or already finish");
-        var currentGameDetail = _context.GameDetail.FirstOrDefault(p => p.Id == gameDetail.Id)
+        var currentGameDetail = _context.GameDetail.FirstOrDefault(p => p.Id == gameDetail.Id && !p.IsAnswered)
             ?? throw new BadRequestException($"GameDetail with id {gameDetail.Id} is not found");
         currentGameDetail.Update(gameDetail.IsCorrect);
         _context.GameDetail.Update(currentGameDetail);
         _context.SaveChanges();
         return currentGameDetail;
+    }
+
+    public List<GameDetail> List(string gameId) {
+        return [.. _context.GameDetail.Include(p => p.CardVersion).ThenInclude(p => p.Card).ThenInclude(p => p.CardCategory).Where(p => p.Game != null && p.Game.Id == gameId).OrderBy(p => p.IndexNumber)];
     }
 
     public PaginationResult<GameDetail> List(PaginationRequest req, string gameId)

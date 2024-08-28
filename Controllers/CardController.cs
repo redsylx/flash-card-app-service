@@ -89,8 +89,8 @@ public class CardController : ControllerBase<CardController> {
     private void AddSasToken(FileService fileService, CardDto card) {
         card.ClueImgUrl = fileService.GetSasToken(_containerImageName, card.ClueImg ?? "");
     }
+}
 
-    public class CardDto : Card {
-        public string? ClueImgUrl { get; set; }
-    }
+public class CardDto : Card {
+    public string? ClueImgUrl { get; set; }
 }
