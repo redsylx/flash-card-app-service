@@ -5,7 +5,6 @@ using Main.Consts;
 using Main.Exceptions;
 using Main.Models;
 using Main.Utils;
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.EntityFrameworkCore;
 
 namespace Main.Services;
@@ -31,6 +30,11 @@ public class GameDetailService : ServiceBase {
             };
         }).ToList();
         _context.GameDetail.AddRange(newGameDetails);
+        _context.SaveChanges();
+    }
+
+    public void DeletePlayingGameDetails(List<string> gameIds) {
+        _context.GameDetail.Where(p => p.Game != null && gameIds.Contains(p.Game.Id)).ExecuteDelete();
         _context.SaveChanges();
     }
 

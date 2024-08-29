@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Main.DTO.GameDto;
 using Main.Consts;
+using Main.Models;
 
 namespace Main.Controllers;
 
@@ -20,8 +21,11 @@ public class GameController : ControllerBase<GameController> {
         var cardService = new CardService(_context);
         var generatedCards = cardService.Generate(dto.NCard, dto.CategoryIds);
         var gameService = new GameService(_context);
-        var newGame = gameService.Create(dto.AccountId, dto.NCard, dto.HideDurationInSecond);
+        var palyingGames = gameService.GetPlayingGames(dto.AccountId);
         var gameDetailService = new GameDetailService(_context);
+        gameDetailService.DeletePlayingGameDetails(palyingGames.Select(p => p.Id).ToList());
+        gameService.DeletePlayingGames(dto.AccountId);
+        var newGame = gameService.Create(dto.AccountId, dto.NCard, dto.HideDurationInSecond);
         gameDetailService.Create(generatedCards.Select(p => p.CurrentVersionId).ToList(), newGame.Id);
         newGame.Account = null;
         return new OkObjectResult(newGame);
@@ -31,6 +35,18 @@ public class GameController : ControllerBase<GameController> {
     public IActionResult Get([FromQuery] string accountId, string gameId) {
         var gameService = new GameService(_context);
         var game = gameService.Get(accountId, gameId);
+        return new OkObjectResult(game);
+    }
+    
+    [HttpGet]
+    [Route("resume")]
+    public IActionResult GetResume([FromQuery] string accountId) {
+        var gameService = new GameService(_context);
+        var game = gameService.GetResume(accountId);
+        if(game == null) {
+            game = new Game();
+            game.Id = "";
+        }
         return new OkObjectResult(game);
     }
 
@@ -52,7 +68,7 @@ public class GameController : ControllerBase<GameController> {
             _context.SaveChanges();
         }
         
-        return new OkResult();
+        return new OkObjectResult(game);
     }
 
     [HttpGet]
