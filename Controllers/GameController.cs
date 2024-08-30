@@ -8,12 +8,29 @@ using Microsoft.Extensions.Logging;
 using Main.DTO.GameDto;
 using Main.Consts;
 using Main.Models;
+using AutoMapper;
+using Azure.Storage.Blobs;
+using System;
+using System.Collections.Generic;
 
 namespace Main.Controllers;
 
 public class GameController : ControllerBase<GameController> {
-    public GameController(Context context, ILogger<GameController> logger) : base(context, logger)
+    private readonly IMapper _mapper;
+    private readonly BlobServiceClient _blobServiceClient;
+    private readonly string _containerImageName;
+    public GameController(Context context, ILogger<GameController> logger, BlobServiceClient blobServiceClient) : base(context, logger)
     {
+        _blobServiceClient = blobServiceClient;
+        _containerImageName = Environment.GetEnvironmentVariable(EnvironmentVariables.CONTAINER_NAME_IMAGE) ?? "";
+        var config = new MapperConfiguration(cfg => 
+        {
+            cfg.CreateMap<Game, GameDto>()
+            .ForMember(p => p.CreatedTime, p => p.MapFrom(p => DateTime.SpecifyKind(p.CreatedTime, DateTimeKind.Utc)))
+            .ForMember(p => p.Categories, p => p.Ignore())
+            .ForMember(p => p.Details, p => p.Ignore());
+        });
+        _mapper = config.CreateMapper();
     }
 
     public IActionResult Post([FromBody] CreateGameDTO dto) {
@@ -23,10 +40,13 @@ public class GameController : ControllerBase<GameController> {
         var gameService = new GameService(_context);
         var palyingGames = gameService.GetPlayingGames(dto.AccountId);
         var gameDetailService = new GameDetailService(_context);
+        var gameDetailCategoryService = new GameDetailCategoryService(_context);
         gameDetailService.DeletePlayingGameDetails(palyingGames.Select(p => p.Id).ToList());
+        gameDetailCategoryService.DeleteAll(palyingGames.Select(p => p.Id).ToList());
         gameService.DeletePlayingGames(dto.AccountId);
         var newGame = gameService.Create(dto.AccountId, dto.NCard, dto.HideDurationInSecond);
         gameDetailService.Create(generatedCards.Select(p => p.CurrentVersionId).ToList(), newGame.Id);
+        gameDetailCategoryService.Create(dto.CategoryIds, newGame.Id);
         newGame.Account = null;
         return new OkObjectResult(newGame);
     }
@@ -73,9 +93,32 @@ public class GameController : ControllerBase<GameController> {
 
     [HttpGet]
     [Route("list")]
+    [AllowAnonymous]
     public IActionResult List([FromQuery] PaginationRequest paginationRequest, string accountId) {
-        if(string.IsNullOrEmpty(accountId)) throw new BadRequestException("accountId is missing from query");
+        if (string.IsNullOrEmpty(accountId)) 
+            throw new BadRequestException("accountId is missing from query");
+
         var gameService = new GameService(_context);
+
+        if (!paginationRequest.IsPaged) {
+            var games = gameService.List(accountId).OrderByDescending(p => p.CreatedTime);
+            var gameDtos = _mapper.Map<List<GameDto>>(games);
+
+            foreach (var dto in gameDtos) {
+                var originGame = games.FirstOrDefault(p => p.Id == dto.Id);
+                if (originGame != null) {
+                    dto.ListCategory = originGame.Categories.OrderBy(p => p.CardCategory.Name).Select(c => c.CardCategory.Name).ToList();
+                }
+            }
+
+            return new OkObjectResult(gameDtos);
+        }
+
         return new OkObjectResult(gameService.List(paginationRequest, accountId));
     }
+
+}
+
+public class GameDto : Game { 
+    public List<string> ListCategory { get; set; } = new();
 }

@@ -69,3 +69,13 @@ CREATE TABLE GameDetail (
     CONSTRAINT fk_gamedetail_game FOREIGN KEY (GameId) REFERENCES Game(Id),
     CONSTRAINT fk_gamedetail_cardversion FOREIGN KEY (CardVersionId) REFERENCES CardVersion(Id),
 );
+
+CREATE TABLE GameDetailCategory (
+    Id VARCHAR(36) PRIMARY KEY,
+    CreatedTime DATETIME NOT NULL,
+    LastUpdatedTime DATETIME NOT NULL,
+    GameId VARCHAR(36) NOT NULL,
+    CardCategoryId VARCHAR(36) NOT NULL,
+    CONSTRAINT fk_gamedetailcategory_game FOREIGN KEY (GameId) REFERENCES Game(Id),
+    CONSTRAINT fk_gamedetail_cardcategory FOREIGN KEY (CardCategoryId) REFERENCES CardCategory(Id),
+);
