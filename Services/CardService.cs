@@ -53,12 +53,11 @@ public class CardService : ServiceBase {
     }
 
     public void Finish(string gameId) {
-        var gameDetails = _context.GameDetail.Include(p => p.CardVersion).ThenInclude(p => p.Card).Where(p => p.Game != null && p.Game.Id == gameId).ToList();
+        var gameDetails = _context.GameDetail.Where(p => p.Game != null && p.Game.Id == gameId).ToList();
         if(gameDetails.Count == 0) throw new BadRequestException($"GameDetails with gameid {gameId} are not found");
-        var cardIds = gameDetails.Select(p => p.CardVersion?.Card?.Id ?? "").ToList();
-        var setCardIds = cardIds.ToHashSet();
+        var setCardIds = gameDetails.Select(p => p.CardId).ToHashSet();
         var cards = _context.Card.Where(p => setCardIds.Contains(p.Id)).ToList();
-        var mapGameDetails = gameDetails.GroupBy(p => p.CardVersion?.Card?.Id ?? "").ToDictionary(p => p.Key, p => p.ToList());
+        var mapGameDetails = gameDetails.GroupBy(p => p.CardId).ToDictionary(p => p.Key, p => p.ToList());
         foreach (var card in cards) {
             if(mapGameDetails.TryGetValue(card.Id, out var listGameDetail))
             listGameDetail.ForEach(p => card.Update(p.IsCorrect));
@@ -70,15 +69,14 @@ public class CardService : ServiceBase {
 
     public PaginationResult<Card> List(PaginationRequest req, string cardCategoryId)
     {
-        var query = _context.Card.Where(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId && !p.IsDelete).AsQueryable();
+        var query = _context.Card.Where(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId).AsQueryable();
         return GetPaginationResult(query, req);
     }
 
     public Card Delete(string cardId) {
         var card = _context.Card.Include(p => p.CardCategory).FirstOrDefault(p => p.Id == cardId) 
             ?? throw new BadRequestException($"Card with id {cardId} is not found");
-        card.IsDelete = true;
-        _context.Card.Update(card);
+        _context.Card.Remove(card);
         _context.SaveChanges();
         return card;
     }

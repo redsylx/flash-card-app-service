@@ -14,21 +14,27 @@ public class GameDetailService : ServiceBase {
     {
     }
 
-    public void Create(List<string> cardVersionIds, string gameId) {
-        if(cardVersionIds is null || cardVersionIds.Count == 0)
-            throw new BadRequestException("cardVersionIds is required");
+    public void Create(List<string> cardIds, string gameId) {
+        if(cardIds is null || cardIds.Count == 0)
+            throw new BadRequestException("cardIds is required");
         var game = _context.Game.FirstOrDefault(p => p.Id == gameId)
             ?? throw new BadRequestException($"Game with id {gameId} is not found");
-        var mapCardVersion = _context.CardVersion.Where(p => cardVersionIds.Contains(p.Id)).ToList().ToDictionary(p => p.Id);
+        var mapCard = _context.Card.Include(p => p.CardCategory).Where(p => cardIds.Contains(p.Id)).ToList().ToDictionary(p => p.Id);
         var indexNumber = 0;
-        var newGameDetails = cardVersionIds.Select(p => {
-            if(!mapCardVersion.TryGetValue(p, out var cardVersion)) throw new BadRequestException($"cardVersion id {p} is not found");
-            return new GameDetail {
-                CardVersion = cardVersion,
-                Game = game,
-                IndexNumber = indexNumber++
-            };
-        }).ToList();
+        var newGameDetails = new List<GameDetail>();
+        foreach(var cardId in cardIds) {
+            var card = mapCard.GetValueOrDefault(cardId);
+            if(card == null) return;
+            var newGameDetail = new GameDetail();
+            newGameDetail.Game = game;
+            newGameDetail.IndexNumber = indexNumber++;
+            newGameDetail.CardId = cardId;
+            newGameDetail.ClueImg = card.ClueImg;
+            newGameDetail.ClueTxt = card.ClueTxt;
+            newGameDetail.CategoryName = card.CardCategory.Name;
+            newGameDetail.DescriptionTxt = card.DescriptionTxt;
+            newGameDetails.Add(newGameDetail);
+        }
         _context.GameDetail.AddRange(newGameDetails);
         _context.SaveChanges();
     }
@@ -53,7 +59,7 @@ public class GameDetailService : ServiceBase {
     }
 
     public List<GameDetail> List(string gameId) {
-        return [.. _context.GameDetail.Include(p => p.CardVersion).ThenInclude(p => p.Card).ThenInclude(p => p.CardCategory).Where(p => p.Game != null && p.Game.Id == gameId).OrderBy(p => p.IndexNumber)];
+        return [.. _context.GameDetail.Where(p => p.Game != null && p.Game.Id == gameId).OrderBy(p => p.IndexNumber)];
     }
 
     public PaginationResult<GameDetail> List(PaginationRequest req, string gameId)
@@ -62,17 +68,17 @@ public class GameDetailService : ServiceBase {
         return GetPaginationResult(query, req);
     }
 
-    public List<string> Delete(string gameId, string accountId)
-    {
-        var gameDetails = _context.GameDetail.Include(p => p.Game).Where(p => p.Game != null && p.Game.Account != null && p.Game.Account.Id == accountId && p.Game.Status == GameConst.FINISH).ToList();
-        var deletedGameDetails = gameDetails.Where(p => p.Game != null && p.Game.Id == gameId);
-        var otherGameDetails = gameDetails.Where(p => p.Game != null && p.Game.Id != gameId);
+    // public List<string> Delete(string gameId, string accountId)
+    // {
+    //     var gameDetails = _context.GameDetail.Include(p => p.Game).Where(p => p.Game != null && p.Game.Account != null && p.Game.Account.Id == accountId && p.Game.Status == GameConst.FINISH).ToList();
+    //     var deletedGameDetails = gameDetails.Where(p => p.Game != null && p.Game.Id == gameId);
+    //     var otherGameDetails = gameDetails.Where(p => p.Game != null && p.Game.Id != gameId);
 
-        var deletedCardVersionIds = deletedGameDetails.Select(p => p.CardVersion?.Id ?? "").ToHashSet();
-        var otherCardVersionIds = otherGameDetails.Select(p => p.CardVersion?.Id ?? "").ToHashSet();
+    //     var deletedCardVersionIds = deletedGameDetails.Select(p => p.CardVersion?.Id ?? "").ToHashSet();
+    //     var otherCardVersionIds = otherGameDetails.Select(p => p.CardVersion?.Id ?? "").ToHashSet();
 
-        _context.GameDetail.RemoveRange(deletedGameDetails);
+    //     _context.GameDetail.RemoveRange(deletedGameDetails);
         
-        return deletedCardVersionIds.Except(otherCardVersionIds).ToList();
-    }
+    //     return deletedCardVersionIds.Except(otherCardVersionIds).ToList();
+    // }
 }

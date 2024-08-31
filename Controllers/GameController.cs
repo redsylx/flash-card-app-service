@@ -33,6 +33,7 @@ public class GameController : ControllerBase<GameController> {
         _mapper = config.CreateMapper();
     }
 
+    [HttpPost]
     public IActionResult Post([FromBody] CreateGameDTO dto) {
         if(dto is null) throw new BadRequestException("CreateGameDTO is required");
         var cardService = new CardService(_context);
@@ -45,7 +46,7 @@ public class GameController : ControllerBase<GameController> {
         gameDetailCategoryService.DeleteAll(palyingGames.Select(p => p.Id).ToList());
         gameService.DeletePlayingGames(dto.AccountId);
         var newGame = gameService.Create(dto.AccountId, dto.NCard, dto.HideDurationInSecond);
-        gameDetailService.Create(generatedCards.Select(p => p.CurrentVersionId).ToList(), newGame.Id);
+        gameDetailService.Create(generatedCards.Select(p => p.Id).ToList(), newGame.Id);
         gameDetailCategoryService.Create(dto.CategoryIds, newGame.Id);
         newGame.Account = null;
         return new OkObjectResult(newGame);
@@ -76,17 +77,11 @@ public class GameController : ControllerBase<GameController> {
         var gameService = new GameService(_context);
         var cardService = new CardService(_context);
         var gameDetailService = new GameDetailService(_context);
-        var cardVersionService = new CardVersionService(_context);
 
         var game = gameService.Finish(gameId);
         cardService.Finish(gameId);
 
         var nGameFinish = _context.Game.Count(p => p.Account != null && game.Account != null && p.Account.Id == game.Account.Id && p.Status == GameConst.FINISH);
-        if(nGameFinish > 10) {
-            var deletedCardVersionIds = gameDetailService.Delete(game.Id, game.Account?.Id ?? "");
-            cardVersionService.Delete(deletedCardVersionIds);
-            _context.SaveChanges();
-        }
         
         return new OkObjectResult(game);
     }
@@ -107,7 +102,7 @@ public class GameController : ControllerBase<GameController> {
             foreach (var dto in gameDtos) {
                 var originGame = games.FirstOrDefault(p => p.Id == dto.Id);
                 if (originGame != null) {
-                    dto.ListCategory = originGame.Categories.OrderBy(p => p.CardCategory.Name).Select(c => c.CardCategory.Name).ToList();
+                    dto.ListCategory = originGame.Categories.OrderBy(p => p.Name).Select(c => c.Name).ToList();
                 }
             }
 

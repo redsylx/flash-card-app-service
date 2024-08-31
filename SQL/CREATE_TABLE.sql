@@ -9,6 +9,7 @@ CREATE TABLE Account (
 CREATE TABLE CardCategory (
     Id VARCHAR(36) PRIMARY KEY,
     Name NVARCHAR(12) NOT NULL,
+    IsDeleted BIT,
     NCard INT NOT NULL CHECK (NCard >= 0),
     PctCorrect DECIMAL(3,2) NULL CHECK (PctCorrect >= 0 AND PctCorrect <= 1),
     AccountId VARCHAR(36) NOT NULL,
@@ -27,23 +28,22 @@ CREATE TABLE Card (
     NCorrect INT NULL,
     PctCorrect DECIMAL(3,2) NULL CHECK (PctCorrect >= 0 AND PctCorrect <= 1),
     CardCategoryId VARCHAR(36) NOT NULL,
-    CurrentVersionId VARCHAR(36) NOT NULL;
     CreatedTime DATETIME NOT NULL,
     LastUpdatedTime DATETIME NOT NULL,
     CONSTRAINT fk_cardcategory FOREIGN KEY (CardCategoryId) REFERENCES CardCategory(Id),
 );
 
-CREATE TABLE CardVersion (
-    Id VARCHAR(36) PRIMARY KEY,
-    ClueTxt NVARCHAR(120) NOT NULL,
-    ClueImg NVARCHAR(256),
-    DescriptionTxt NVARCHAR(256) NOT NULL,
-    DescriptionImg NVARCHAR(256),
-    CardId VARCHAR(36) NOT NULL,
-    CreatedTime DATETIME NOT NULL,
-    LastUpdatedTime DATETIME NOT NULL,
-    CONSTRAINT fk_card FOREIGN KEY (CardId) REFERENCES Card(Id),
-);
+-- CREATE TABLE CardVersion (
+--     Id VARCHAR(36) PRIMARY KEY,
+--     ClueTxt NVARCHAR(120) NOT NULL,
+--     ClueImg NVARCHAR(256),
+--     DescriptionTxt NVARCHAR(256) NOT NULL,
+--     DescriptionImg NVARCHAR(256),
+--     CardId VARCHAR(36) NOT NULL,
+--     CreatedTime DATETIME NOT NULL,
+--     LastUpdatedTime DATETIME NOT NULL,
+--     CONSTRAINT fk_card FOREIGN KEY (CardId) REFERENCES Card(Id),
+-- );
 
 CREATE TABLE Game (
     Id VARCHAR(36) PRIMARY KEY,
@@ -64,18 +64,20 @@ CREATE TABLE GameDetail (
     IsCorrect BIT,
     IsAnswered BIT,
     IndexNumber INT,
+    CategoryName NVARCHAR(12) NOT NULL,
+    ClueTxt NVARCHAR(120) NOT NULL,
+    ClueImg NVARCHAR(256),
+    DescriptionTxt NVARCHAR(256) NOT NULL,
     GameId VARCHAR(36) NOT NULL,
-    CardVersionId VARCHAR(36) NOT NULL,
+    CardId VARCHAR(36) NOT NULL,
     CONSTRAINT fk_gamedetail_game FOREIGN KEY (GameId) REFERENCES Game(Id),
-    CONSTRAINT fk_gamedetail_cardversion FOREIGN KEY (CardVersionId) REFERENCES CardVersion(Id),
 );
 
 CREATE TABLE GameDetailCategory (
     Id VARCHAR(36) PRIMARY KEY,
     CreatedTime DATETIME NOT NULL,
     LastUpdatedTime DATETIME NOT NULL,
+    Name NVARCHAR(12) NOT NULL,
     GameId VARCHAR(36) NOT NULL,
-    CardCategoryId VARCHAR(36) NOT NULL,
     CONSTRAINT fk_gamedetailcategory_game FOREIGN KEY (GameId) REFERENCES Game(Id),
-    CONSTRAINT fk_gamedetail_cardcategory FOREIGN KEY (CardCategoryId) REFERENCES CardCategory(Id),
 );

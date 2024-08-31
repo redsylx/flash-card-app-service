@@ -17,7 +17,7 @@ public class GameDetailCategoryService : ServiceBase {
         foreach(var category in categories) {
             var detailCategory = new GameDetailCategory();
             detailCategory.Game = game;
-            detailCategory.CardCategory = category;
+            detailCategory.Name = category.Name;
             detailCategories.Add(detailCategory);
         }
         _context.GameDetailCategory.AddRange(detailCategories);

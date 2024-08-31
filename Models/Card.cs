@@ -5,7 +5,6 @@ namespace Main.Models;
 
 public class Card : ModelBase
 {
-    public bool IsDelete { get; set; } = false;
     public string ClueTxt { get; set; } = "";
     public string? ClueImg { get; set; }
     public string DescriptionTxt { get; set; } = "";
@@ -13,13 +12,9 @@ public class Card : ModelBase
     public int NFrequency { get; set; }
     public int? NCorrect { get; set; }
     public decimal? PctCorrect { get; set; }
-    public string CurrentVersionId { get; set; } = Guid.NewGuid().ToString();
+
     [ForeignKey("CardCategoryId")]
     public virtual CardCategory? CardCategory { get; set; }
-
-    public void Delete() {
-        IsDelete = true;
-    }
 
     public void Update(string clueTxt, string descriptionTxt, string? clueImg, string? descriptionImg)
     {
@@ -27,7 +22,6 @@ public class Card : ModelBase
         DescriptionTxt = descriptionTxt;
         ClueImg = clueImg;
         DescriptionImg = descriptionImg;
-        CurrentVersionId = Guid.NewGuid().ToString();
     }
 
     public void Update(bool isCorrect) {

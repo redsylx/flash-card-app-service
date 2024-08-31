@@ -27,9 +27,7 @@ public class GameDetailController : ControllerBase<GameDetailController> {
             cfg.CreateMap<Card, CardDto>()
                 .ForMember(p => p.CardCategory, p => p.Ignore());
             cfg.CreateMap<GameDetail, GameDetailDto>()
-                .ForMember(p => p.CategoryName, c => c.MapFrom(p => p.CardVersion.Card.CardCategory.Name ?? ""))
-                .ForMember(p => p.Card, p => p.MapFrom(p => p.CardVersion.Card))
-                .ForMember(p => p.CardVersion, p => p.Ignore());
+                .ForMember(p => p.CategoryName, c => c.MapFrom(p => p.CategoryName));
         });
         _mapper = config.CreateMapper();
     }
@@ -51,33 +49,31 @@ public class GameDetailController : ControllerBase<GameDetailController> {
         if(!paginationRequest.IsPaged) {
             var data = gameDetailService.List(gameId);
             var result = _mapper.Map<List<GameDetailDto>>(data);
-            var listCard = result.Select(p => p.Card).ToList();
-            AddSasToken(listCard);
+            AddSasToken(result);
             return new OkObjectResult(result);
         };
         return new OkObjectResult(gameDetailService.List(paginationRequest, gameId));
     }
 
-    private void AddSasToken(CardDto card) {
+    private void AddSasToken(GameDetailDto gameDetail) {
         var fileService = new FileService(_blobServiceClient);
-        if(!string.IsNullOrEmpty(card.ClueImg)) AddSasToken(fileService, card);
+        if(!string.IsNullOrEmpty(gameDetail.ClueImg)) AddSasToken(fileService, gameDetail);
     }
 
-    private void AddSasToken(List<CardDto?>? cards) {
-        if(cards == null) return;
+    private void AddSasToken(List<GameDetailDto> gameDetails) {
+        if(gameDetails == null) return;
         var fileService = new FileService(_blobServiceClient);
-        foreach(var card in cards) {
+        foreach(var card in gameDetails) {
             if(card == null) continue; 
             if(!string.IsNullOrEmpty(card.ClueImg)) AddSasToken(fileService, card);
         }
     }
 
-    private void AddSasToken(FileService fileService, CardDto card) {
-        card.ClueImgUrl = fileService.GetSasToken(_containerImageName, card.ClueImg ?? "");
+    private void AddSasToken(FileService fileService, GameDetailDto gameDetail) {
+        gameDetail.ClueImgUrl = fileService.GetSasToken(_containerImageName, gameDetail.ClueImg ?? "");
     }
 
     public class GameDetailDto : GameDetail {
-        public string? CategoryName { get; set; }
-        public CardDto? Card { get; set; }
+        public string ClueImgUrl { get; set; } = "";
     }
 }

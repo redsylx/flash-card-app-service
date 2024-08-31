@@ -20,7 +20,7 @@ public class CardCategoryService : ServiceBase {
     public CardCategory CountNCard(string cardCategoryId) {
         var cardCategory = _context.CardCategory.FirstOrDefault(p => p.Id == cardCategoryId)
             ?? throw new BadRequestException($"Category with id {cardCategoryId} is not found");
-        var totalCard = _context.Card.Count(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId && !p.IsDelete);
+        var totalCard = _context.Card.Count(p => p.CardCategory != null && p.CardCategory.Id == cardCategoryId);
         cardCategory.NCard = totalCard;
         _context.CardCategory.Update(cardCategory);
         _context.SaveChanges();
@@ -44,7 +44,7 @@ public class CardCategoryService : ServiceBase {
         if (cardCategory.Name == DefaultNameConst.CARD_CATEGORY) throw new BadRequestException($"Category '{DefaultNameConst.CARD_CATEGORY}' cant be deleted");
         if (cardCategory.NCard == 0) _context.CardCategory.Remove(cardCategory);
         else {
-            cardCategory.IsDelete = true;
+            cardCategory.IsDeleted = true;
             _context.CardCategory.Update(cardCategory);
         }
         _context.SaveChanges();

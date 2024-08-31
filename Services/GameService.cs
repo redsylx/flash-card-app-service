@@ -65,7 +65,7 @@ public class GameService : ServiceBase {
 
     public List<Game> List(string accountId)
     {
-        return _context.Game.Include(p => p.Categories).ThenInclude(p => p.CardCategory).Where(p => p.Account != null && p.Account.Id == accountId).ToList();
+        return _context.Game.Include(p => p.Categories).Where(p => p.Account != null && p.Account.Id == accountId).ToList();
     }
 
     public PaginationResult<Game> List(PaginationRequest req, string accountId)
