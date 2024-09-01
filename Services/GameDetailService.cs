@@ -39,7 +39,7 @@ public class GameDetailService : ServiceBase {
         _context.SaveChanges();
     }
 
-    public void DeletePlayingGameDetails(List<string> gameIds) {
+    public void DeleteAll(List<string> gameIds) {
         _context.GameDetail.Where(p => p.Game != null && gameIds.Contains(p.Game.Id)).ExecuteDelete();
         _context.SaveChanges();
     }

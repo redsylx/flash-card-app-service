@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Main.Models;
@@ -28,8 +29,10 @@ public class CardCategoryController : ControllerBase<CardCategoryController> {
     [HttpDelete]
     public ActionResult Delete([FromQuery] string accountId, string categoryId) {
         var cardCategoryService = new CardCategoryService(_context);
-        cardCategoryService.Delete(accountId, categoryId);
+        var _ = cardCategoryService.Get(categoryId) ?? throw new Exception("Invalid categoryId");
         var cardService = new CardService(_context);
+        cardService.DeleteByCategory(categoryId);
+        cardCategoryService.Delete(accountId, categoryId);
         return new OkResult();
     }
 

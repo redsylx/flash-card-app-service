@@ -13,6 +13,10 @@ public class GameService : ServiceBase {
     {
     }
 
+    public List<Game> GetGamesToBeDeleted(string accountId, int threshold) {
+        return _context.Game.Where(p => p.Account != null && p.Account.Id == accountId).OrderByDescending(p => p.CreatedTime).Skip(threshold).ToList();
+    }
+
     public Game Get(string accountId, string gameId) {
         var game = _context.Game.FirstOrDefault(p => p.Account != null && p.Account.Id == accountId && p.Id == gameId)
             ?? throw new BadRequestException($"Game with id {gameId} is missing");
@@ -49,9 +53,14 @@ public class GameService : ServiceBase {
         _context.SaveChanges();
     }
 
+    public void DeleteAll(List<string> gameIds) {
+        _context.Game.Where(p => gameIds.Contains(p.Id)).ExecuteDelete();
+        _context.SaveChanges();
+    }
+
     public Game Finish(string gameId) {
         if(string.IsNullOrEmpty(gameId)) throw new BadRequestException("gameId is missing");
-        var existingGame = _context.Game.FirstOrDefault(p => p.Id == gameId)
+        var existingGame = _context.Game.Include(p => p.Account).FirstOrDefault(p => p.Id == gameId)
             ?? throw new BadRequestException($"Card with id {gameId} is not found");
         if(existingGame.Status == GameConst.FINISH) return existingGame;
         var isNotAnsweredAll = _context.GameDetail.Any(p => p.Game != null && p.Game.Id == gameId && !p.IsAnswered);

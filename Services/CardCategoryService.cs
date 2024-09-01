@@ -13,8 +13,12 @@ public class CardCategoryService : ServiceBase {
     {
     }
 
+    public CardCategory? Get(string cardCategoryId) {
+        return _context.CardCategory.FirstOrDefault(p => p.Id == cardCategoryId);
+    }
+
     public List<CardCategory> GetCardCategories(string accountId) {
-        return [.. _context.CardCategory.Include(p => p.Account).Where(p => p.Account != null && p.Account.Id == accountId)];
+        return [.. _context.CardCategory.Include(p => p.Account).Where(p => p.Account != null && p.Account.Id == accountId).OrderBy(p => p.Name)];
     }
 
     public CardCategory CountNCard(string cardCategoryId) {
@@ -41,12 +45,7 @@ public class CardCategoryService : ServiceBase {
     public void Delete(string accountId, string categoryId) {
         var cardCategory = _context.CardCategory.FirstOrDefault(p => p.Account != null && p.Account.Id == accountId && p.Id == categoryId)
             ?? throw new BadRequestException($"Category with id {categoryId} is not found");
-        if (cardCategory.Name == DefaultNameConst.CARD_CATEGORY) throw new BadRequestException($"Category '{DefaultNameConst.CARD_CATEGORY}' cant be deleted");
-        if (cardCategory.NCard == 0) _context.CardCategory.Remove(cardCategory);
-        else {
-            cardCategory.IsDeleted = true;
-            _context.CardCategory.Update(cardCategory);
-        }
+        _context.CardCategory.Remove(cardCategory);
         _context.SaveChanges();
     }
 

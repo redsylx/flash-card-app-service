@@ -42,7 +42,7 @@ public class GameController : ControllerBase<GameController> {
         var palyingGames = gameService.GetPlayingGames(dto.AccountId);
         var gameDetailService = new GameDetailService(_context);
         var gameDetailCategoryService = new GameDetailCategoryService(_context);
-        gameDetailService.DeletePlayingGameDetails(palyingGames.Select(p => p.Id).ToList());
+        gameDetailService.DeleteAll(palyingGames.Select(p => p.Id).ToList());
         gameDetailCategoryService.DeleteAll(palyingGames.Select(p => p.Id).ToList());
         gameService.DeletePlayingGames(dto.AccountId);
         var newGame = gameService.Create(dto.AccountId, dto.NCard, dto.HideDurationInSecond);
@@ -77,11 +77,19 @@ public class GameController : ControllerBase<GameController> {
         var gameService = new GameService(_context);
         var cardService = new CardService(_context);
         var gameDetailService = new GameDetailService(_context);
+        var gameDetailCategoryService = new GameDetailCategoryService(_context);
 
         var game = gameService.Finish(gameId);
         cardService.Finish(gameId);
 
         var nGameFinish = _context.Game.Count(p => p.Account != null && game.Account != null && p.Account.Id == game.Account.Id && p.Status == GameConst.FINISH);
+
+        if(nGameFinish > 5) {
+            var deletedGameIds = gameService.GetGamesToBeDeleted(game.Account.Id, 5).Select(p => p.Id).ToList();
+            gameDetailCategoryService.DeleteAll(deletedGameIds);
+            gameDetailService.DeleteAll(deletedGameIds);
+            gameService.DeleteAll(deletedGameIds);
+        }
         
         return new OkObjectResult(game);
     }
