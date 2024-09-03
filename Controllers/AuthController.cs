@@ -26,7 +26,7 @@ public class AuthController : ControllerBase<AuthController> {
             } catch (Exception e) {
             }
         }
-        return new OkObjectResult(new { username = newAccount.Username, id = newAccount.Id });
+        return new OkObjectResult(new { username = newAccount.Username, id = newAccount.Id, point = newAccount.Point });
     }
 
     [HttpPut]

@@ -31,4 +31,13 @@ public class AccountService : ServiceBase {
         _context.SaveChanges();
         return existingAccount;
     }
+
+    public Account UpdatePoint(string accountId, string pointActivityId) {
+        var account = _context.Account.First(p => p.Id == accountId);
+        var pointActivity = _context.PointActivity.First(p => p.Id == pointActivityId);
+        account.Point += pointActivity.Point;
+        _context.Account.Update(account);
+        _context.SaveChanges();
+        return account;
+    }
 }

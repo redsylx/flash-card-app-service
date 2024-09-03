@@ -78,19 +78,24 @@ public class GameController : ControllerBase<GameController> {
         var cardService = new CardService(_context);
         var gameDetailService = new GameDetailService(_context);
         var gameDetailCategoryService = new GameDetailCategoryService(_context);
+        var pointActivityService = new PointActivityService(_context);
+        var accountService = new AccountService(_context);
 
         var game = gameService.Finish(gameId);
         cardService.Finish(gameId);
 
         var nGameFinish = _context.Game.Count(p => p.Account != null && game.Account != null && p.Account.Id == game.Account.Id && p.Status == GameConst.FINISH);
 
-        if(nGameFinish > 5) {
-            var deletedGameIds = gameService.GetGamesToBeDeleted(game.Account.Id, 5).Select(p => p.Id).ToList();
-            gameDetailCategoryService.DeleteAll(deletedGameIds);
-            gameDetailService.DeleteAll(deletedGameIds);
-            gameService.DeleteAll(deletedGameIds);
-        }
+        // if(nGameFinish > 5) {
+        //     var deletedGameIds = gameService.GetGamesToBeDeleted(game.Account.Id, 5).Select(p => p.Id).ToList();
+        //     gameDetailCategoryService.DeleteAll(deletedGameIds);
+        //     gameDetailService.DeleteAll(deletedGameIds);
+        //     gameService.DeleteAll(deletedGameIds);
+        // }
         
+        var pointActivity = pointActivityService.FinishGame(game.Id, game.Account.Id);
+        accountService.UpdatePoint(game.Account.Id, pointActivity.Id);
+
         return new OkObjectResult(game);
     }
 
