@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using Azure.Storage.Blobs;
 using Main.Consts;
@@ -22,7 +23,8 @@ public class CardController : ControllerBase<CardController> {
         _containerImageName = Environment.GetEnvironmentVariable(EnvironmentVariables.CONTAINER_NAME_IMAGE) ?? "";
         var config = new MapperConfiguration(cfg => 
         {
-            cfg.CreateMap<Card, CardDto>();
+            cfg.CreateMap<Card, CardDto>()
+            .ForMember(p => p.CategoryName, p => p.MapFrom(p => p.CardCategory.Name ?? ""));
         });
         _mapper = config.CreateMapper();
     }
@@ -58,6 +60,17 @@ public class CardController : ControllerBase<CardController> {
         return new OkObjectResult(resultDto);
     }
 
+    [HttpGet]
+    [Route("list/account")]
+    public IActionResult ListByAccount([FromQuery] PaginationRequest paginationRequest, [FromQuery] string accountId) {
+        var cardService = new CardService(_context);
+        var result = cardService.ListByAccount(paginationRequest, accountId);
+        var listDto = _mapper.Map<List<CardDto>>(result.Items).Select(p => { p.CardCategory = null; return p; }).ToList();
+        var resultDto = new PaginationResult<CardDto>(listDto, result.TotalCount, result.PageNumber, result.MaxPageNumber, result.PageSize);
+        AddSasToken(resultDto.Items);
+        return new OkObjectResult(resultDto);
+    }
+
     [HttpDelete]
     public IActionResult Delete([FromQuery] string cardId) {
         var cardService = new CardService(_context);
@@ -86,4 +99,5 @@ public class CardController : ControllerBase<CardController> {
 
 public class CardDto : Card {
     public string? ClueImgUrl { get; set; }
+    public string? CategoryName { get; set; }
 }

@@ -73,6 +73,12 @@ public class CardService : ServiceBase {
         return GetPaginationResult(query, req);
     }
 
+    public PaginationResult<Card> ListByAccount(PaginationRequest req, string accountId)
+    {
+        var query = _context.Card.Include(p => p.CardCategory).Where(p => p.CardCategory != null && p.CardCategory.Account != null && p.CardCategory.Account.Id == accountId).AsQueryable();
+        return GetPaginationResult(query, req);
+    }
+
     public void DeleteByCategory(string categoryId) {
         _context.Card.Where(p => p.CardCategory != null && p.CardCategory.Id == categoryId).ExecuteDelete();
     }
