@@ -99,7 +99,7 @@ CREATE TABLE SellCardCategory (
     NCard INT NOT NULL CHECK (NCard >= 0),
     Img VARCHAR(64),
     Point INT,
-    Stock INT,
+    Sold INT,
     Description VARCHAR(64),
     AccountId VARCHAR(36) NOT NULL,
     CreatedTime DATETIME NOT NULL,

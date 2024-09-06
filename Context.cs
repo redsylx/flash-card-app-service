@@ -18,6 +18,8 @@ public class Context : DbContext {
     public DbSet<GameDetail> GameDetail { get; set; }
     public DbSet<GameDetailCategory> GameDetailCategory { get; set; }
     public DbSet<PointActivity> PointActivity { get; set; }
+    public DbSet<SellCardCategory> SellCardCategory { get; set; }
+    public DbSet<SellCard> SellCard { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +34,8 @@ public class Context : DbContext {
         modelBuilder.Entity<GameDetailCategory>().HasOne(p => p.Game);
         // modelBuilder.Entity<GameDetailCategory>().HasOne(p => p.CardCategory);
         modelBuilder.Entity<PointActivity>().HasOne(p => p.Account);
+        modelBuilder.Entity<SellCardCategory>().HasOne(p => p.Account);
+        modelBuilder.Entity<SellCard>().HasOne(p => p.SellCardCategory);
         base.OnModelCreating(modelBuilder);
     }
 
