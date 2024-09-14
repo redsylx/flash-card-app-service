@@ -27,9 +27,15 @@ public class SellCardCategoryService : ServiceBase {
         return newSellCardCategory;
     }
 
-    public PaginationResult<SellCardCategory> List(PaginationRequest req, string accountId)
+    public PaginationResult<SellCardCategory> ListByAccount(PaginationRequest req, string accountId)
     {
         var query = _context.SellCardCategory.Where(p => p.Account != null && p.Account.Id == accountId).AsQueryable();
+        return GetPaginationResult(query, req);
+    }
+    
+    public PaginationResult<SellCardCategory> ListExcludeAccount(PaginationRequest req, string accountId)
+    {
+        var query = _context.SellCardCategory.Where(p => p.Account != null && p.Account.Id != accountId).AsQueryable();
         return GetPaginationResult(query, req);
     }
 }

@@ -43,12 +43,25 @@ public class SellCardCategoryController : ControllerBase<SellCardCategoryControl
     [Route("list/account")]
     public IActionResult ListByAccount([FromQuery] PaginationRequest paginationRequest, [FromQuery] string accountId) {
         var sellCardCategoryService = new SellCardCategoryService(_context);
-        var result = sellCardCategoryService.List(paginationRequest, accountId);
+        var result = sellCardCategoryService.ListByAccount(paginationRequest, accountId);
         var listDto = _mapper.Map<List<SellCardCategoryDto>>(result.Items).Select(p => { p.Account = null; return p; }).ToList();
         var resultDto = new PaginationResult<SellCardCategoryDto>(listDto, result.TotalCount, result.PageNumber, result.MaxPageNumber, result.PageSize);
         AddSasToken(resultDto.Items);
         return new OkObjectResult(resultDto);
     }
+
+    [HttpGet]
+    [Route("list/account/exclude")]
+    [AllowAnonymous]
+    public IActionResult List([FromQuery] PaginationRequest paginationRequest, [FromQuery] string accountId) {
+        var sellCardCategoryService = new SellCardCategoryService(_context);
+        var result = sellCardCategoryService.ListExcludeAccount(paginationRequest, accountId);
+        var listDto = _mapper.Map<List<SellCardCategoryDto>>(result.Items).Select(p => { p.Account = null; return p; }).ToList();
+        var resultDto = new PaginationResult<SellCardCategoryDto>(listDto, result.TotalCount, result.PageNumber, result.MaxPageNumber, result.PageSize);
+        AddSasToken(resultDto.Items);
+        return new OkObjectResult(resultDto);
+    }
+
 
     private void AddSasToken(SellCardCategoryDto item) {
         var fileService = new FileService(_blobServiceClient);
