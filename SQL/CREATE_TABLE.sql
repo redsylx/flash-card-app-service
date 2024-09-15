@@ -127,3 +127,22 @@ CREATE TABLE TransactionDetail (
     CONSTRAINT fk_transactiondetail_transactionactivity FOREIGN KEY (TransactionId) REFERENCES TransactionActivity(Id),
     CONSTRAINT fk_transacitondetail_sellcardcategory FOREIGN KEY (SellCardCategoryId) REFERENCES SellCardCategory(Id)
 )
+
+CREATE TABLE Cart (
+    Id VARCHAR(36) PRIMARY KEY,
+    CreatedTime DATETIME NOT NULL,
+    LastUpdatedTime DATETIME NOT NULL,
+    NItems INT,
+    AccountId VARCHAR(36) NOT NULL,
+    CONSTRAINT fk_cart_account FOREIGN KEY (AccountId) REFERENCES Account(Id)
+)
+
+CREATE TABLE CartDetail (
+    Id VARCHAR(36) PRIMARY KEY,
+    CreatedTime DATETIME NOT NULL,
+    LastUpdatedTime DATETIME NOT NULL,
+    SellCardCategoryId VARCHAR(36) NOT NULL,,
+    CartId VARCHAR(36) NOT NULL,
+    CONSTRAINT fk_cartdetail_cart FOREIGN KEY (CartId) REFERENCES Cart(Id),
+    CONSTRAINT fk_cartdetail_sellcardcategoryid FOREIGN KEY (SellCardCategoryId) REFERENCES SellCardCategory(Id),
+)

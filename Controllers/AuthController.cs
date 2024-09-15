@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Main.Consts;
 using System;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Main.Controllers;
 
@@ -20,6 +22,7 @@ public class AuthController : ControllerBase<AuthController> {
     public IActionResult Get() {
         var email = _httpContextAccessor.GetEmail();
         var newAccount = new AccountService(_context).CheckAccount(email);
+        new CartService(_context).Create(newAccount.Id);
         if(string.IsNullOrEmpty(newAccount.Username)) {
             try {
                 new CardCategoryService(_context).Create(newAccount.Id, DefaultNameConst.CARD_CATEGORY);
