@@ -54,6 +54,17 @@ public class CardCategoryController : ControllerBase<CardCategoryController> {
         }
         return new OkResult();
     }
+
+    [HttpGet]
+    [Route("convert")]
+    [AllowAnonymous]
+    public IActionResult Convert([FromQuery] string accountId, string sellCardCategoryId) {
+        var cardCategoryService = new CardCategoryService(_context);
+        var cardService = new CardService(_context);
+        var newCardCategory = cardCategoryService.Convert(accountId, sellCardCategoryId);
+        cardService.Convert(newCardCategory.Id, sellCardCategoryId);
+        return new OkResult();
+    }
 }
 
 

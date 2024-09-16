@@ -22,6 +22,8 @@ public class Context : DbContext {
     public DbSet<SellCard> SellCard { get; set; }
     public DbSet<Cart> Cart { get; set; }
     public DbSet<CartDetail> CartDetail { get; set; }
+    public DbSet<TransactionActivity> TransactionActivity { get; set; }
+    public DbSet<TransactionDetail> TransactionDetail { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +43,10 @@ public class Context : DbContext {
         modelBuilder.Entity<Cart>().HasOne(p => p.Account);
         modelBuilder.Entity<CartDetail>().HasOne(p => p.Cart);
         modelBuilder.Entity<CartDetail>().HasOne(p => p.SellCardCategory);
+        modelBuilder.Entity<TransactionActivity>().HasOne(p => p.Account);
+        modelBuilder.Entity<TransactionDetail>().HasOne(p => p.TransactionActivitySeller);
+        modelBuilder.Entity<TransactionDetail>().HasOne(p => p.TransactionActivityBuyer);
+        modelBuilder.Entity<TransactionDetail>().HasOne(p => p.SellCardCategory);
         base.OnModelCreating(modelBuilder);
     }
 

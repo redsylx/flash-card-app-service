@@ -3,12 +3,25 @@ using System.Linq;
 using Main.Exceptions;
 using Main.Models;
 using Main.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace Main.Services;
 
 public class AccountService : ServiceBase {
     public AccountService(Context context): base(context)
     {
+    }
+
+    public void FinishTransaction(string transactionId) {
+        var transactionIds = _context.TransactionDetail.Include(p => p.TransactionActivitySeller).Where(p => p.TransactionActivityBuyer != null && p.TransactionActivityBuyer.Id == transactionId).Select(p => p.TransactionActivitySeller.Id).ToList();
+        transactionIds.Add(transactionId);
+        var pointActivities = _context.PointActivity.Include(p => p.Account).Where(p => transactionIds.Contains(p.ActivityId));
+        foreach(var pointActivity in pointActivities) {
+            var account = pointActivity.Account;
+            account.Point += pointActivity.Point;
+        }
+        _context.Account.UpdateRange(pointActivities.Select(p => p.Account));
+        _context.SaveChanges();
     }
 
     public Account CheckAccount(string email) {

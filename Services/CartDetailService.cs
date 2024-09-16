@@ -30,6 +30,10 @@ public class CartDetailService : ServiceBase {
         _context.SaveChanges();
     }
 
+    public void RemoveAll(string cartId) {
+        _context.CartDetail.Where(p => p.Cart != null && p.Cart.Id == cartId).ExecuteDelete();
+    }
+
     public List<CartDetail> GetCartDetailsByCartId(string id) {
         return _context.CartDetail.Include(p => p.SellCardCategory).Where(p => p.Cart != null && p.Cart.Id == id).ToList();
     }

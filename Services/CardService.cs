@@ -90,4 +90,21 @@ public class CardService : ServiceBase {
         _context.SaveChanges();
         return card;
     }
+
+    public List<Card> Convert(string categoryId, string sellCardCategoryId) {
+        var sellCards = _context.SellCard.Where(p => p.SellCardCategory != null && p.SellCardCategory.Id == sellCardCategoryId).ToList();
+        var category = _context.CardCategory.First(p => p.Id == categoryId);
+        var newCards = new List<Card>();
+        foreach(var sellCard in sellCards) {
+            var newCard = new Card();
+            newCard.CardCategory = category;
+            newCard.ClueImg = sellCard.ClueImg;
+            newCard.ClueTxt = sellCard.ClueTxt;
+            newCard.DescriptionTxt = sellCard.DescriptionTxt;
+            newCards.Add(newCard);
+        }
+        _context.Card.AddRange(newCards);
+        _context.SaveChanges();
+        return newCards;
+    }
 }

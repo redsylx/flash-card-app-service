@@ -88,6 +88,7 @@ CREATE TABLE TransactionActivity (
     LastUpdatedTime DATETIME NOT NULL,
     AccountId VARCHAR(36) NOT NULL,
     TotalPoint INT,
+    TotalItem INT,
     Category VARCHAR(64) NOT NULL,
     CONSTRAINT fk_transaction_account FOREIGN KEY (AccountId) REFERENCES Account(Id),
 )
@@ -123,8 +124,10 @@ CREATE TABLE TransactionDetail (
     CreatedTime DATETIME NOT NULL,
     LastUpdatedTime DATETIME NOT NULL,
     SellCardCategoryId VARCHAR(36),
-    TransactionActivityId VARCHAR(36),
-    CONSTRAINT fk_transactiondetail_transactionactivity FOREIGN KEY (TransactionId) REFERENCES TransactionActivity(Id),
+    TransactionActivityIdSeller VARCHAR(36),
+    TransactionActivityIdBuyer VARCHAR(36),
+    CONSTRAINT fk_transactiondetail_transactionactivityseller FOREIGN KEY (TransactionActivityIdSeller) REFERENCES TransactionActivity(Id),
+    CONSTRAINT fk_transactiondetail_transactionactivitybuyer FOREIGN KEY (TransactionActivityIdBuyer) REFERENCES TransactionActivity(Id),
     CONSTRAINT fk_transacitondetail_sellcardcategory FOREIGN KEY (SellCardCategoryId) REFERENCES SellCardCategory(Id)
 )
 

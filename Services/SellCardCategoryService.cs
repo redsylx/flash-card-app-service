@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using Main.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace Main.Services;
 
@@ -25,6 +27,15 @@ public class SellCardCategoryService : ServiceBase {
         _context.SellCardCategory.Add(newSellCardCategory);
         _context.SaveChanges();
         return newSellCardCategory;
+    }
+
+    public void CalculateSold(string transactionId) {
+        var cardCategories = _context.TransactionDetail.Include(p => p.SellCardCategory).Where(p => p.TransactionActivityBuyer != null && p.TransactionActivityBuyer.Id == transactionId).Select(p => p.SellCardCategory);
+        foreach(var cardCategory in cardCategories) {
+            cardCategory.Sold += 1;
+        }
+        _context.SellCardCategory.UpdateRange(cardCategories);
+        _context.SaveChanges();
     }
 
     public PaginationResult<SellCardCategory> ListByAccount(PaginationRequest req, string accountId)

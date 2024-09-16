@@ -62,6 +62,16 @@ public class SellCardCategoryController : ControllerBase<SellCardCategoryControl
         return new OkObjectResult(resultDto);
     }
 
+    [HttpGet]
+    [Route("list/buyer")]
+    public IActionResult ListByBuyer([FromQuery] PaginationRequest paginationRequest, [FromQuery] string transactionId) {
+        var transactionDetailService = new TransactionDetailService(_context);
+        var result = transactionDetailService.ListByBuyerTransactionId(paginationRequest, transactionId);
+        var listDto = _mapper.Map<List<SellCardCategoryDto>>(result.Items.Select(p => p.SellCardCategory)).ToList();
+        var resultDto = new PaginationResult<SellCardCategoryDto>(listDto, result.TotalCount, result.PageNumber, result.MaxPageNumber, result.PageSize);
+        AddSasToken(resultDto.Items);
+        return new OkObjectResult(resultDto);
+    }
 
     private void AddSasToken(SellCardCategoryDto item) {
         var fileService = new FileService(_blobServiceClient);
