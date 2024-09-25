@@ -58,10 +58,10 @@ public class CardCategoryController : ControllerBase<CardCategoryController> {
     [HttpGet]
     [Route("convert")]
     [AllowAnonymous]
-    public IActionResult Convert([FromQuery] string accountId, string sellCardCategoryId) {
+    public IActionResult Convert([FromQuery] string accountId, string sellCardCategoryId, string newCategoryName) {
         var cardCategoryService = new CardCategoryService(_context);
         var cardService = new CardService(_context);
-        var newCardCategory = cardCategoryService.Convert(accountId, sellCardCategoryId);
+        var newCardCategory = cardCategoryService.Convert(accountId, sellCardCategoryId, newCategoryName);
         cardService.Convert(newCardCategory.Id, sellCardCategoryId);
         return new OkResult();
     }

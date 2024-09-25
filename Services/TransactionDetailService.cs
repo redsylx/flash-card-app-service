@@ -15,7 +15,7 @@ public class TransactionDetailService : ServiceBase
 
     public PaginationResult<TransactionDetail> ListByBuyerTransactionId(PaginationRequest req, string transactionId)
     {
-        var query = _context.TransactionDetail.Include(p => p.SellCardCategory).Where(p => p.TransactionActivityBuyer != null && p.TransactionActivityBuyer.Id == transactionId).AsQueryable();
+        var query = _context.TransactionDetail.Include(p => p.SellCardCategory).ThenInclude(p => p.Account).Where(p => p.TransactionActivityBuyer != null && p.TransactionActivityBuyer.Id == transactionId).AsQueryable();
         return GetPaginationResult(query, req);
     }
 }

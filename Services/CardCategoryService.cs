@@ -64,14 +64,14 @@ public class CardCategoryService : ServiceBase {
         return newCardCategory;
     }
 
-    public CardCategory Convert(string accountId, string sellCardCategoryId) {
+    public CardCategory Convert(string accountId, string sellCardCategoryId, string newCategoryName) {
         var sellCardCategory = _context.SellCardCategory.First(p => p.Id == sellCardCategoryId);
-        var existingCategory = _context.CardCategory.FirstOrDefault(p => p.Name == sellCardCategory.Name && p.Account != null && p.Account.Id == accountId);
+        var existingCategory = _context.CardCategory.FirstOrDefault(p => p.Name == newCategoryName && p.Account != null && p.Account.Id == accountId);
         if(existingCategory != null) throw new BadRequestException($"Category with name {existingCategory.Name} already exist");
         var account = _context.Account.First(p => p.Id == accountId);
         var cardCategory = new CardCategory();
         cardCategory.Account = account;
-        cardCategory.Name = sellCardCategory.Name;
+        cardCategory.Name = newCategoryName;
         cardCategory.NCard = sellCardCategory.NCard;
         _context.CardCategory.Add(cardCategory);
         _context.SaveChanges();

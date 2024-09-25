@@ -56,7 +56,15 @@ public class SellCardCategoryController : ControllerBase<SellCardCategoryControl
     public IActionResult List([FromQuery] PaginationRequest paginationRequest, [FromQuery] string accountId) {
         var sellCardCategoryService = new SellCardCategoryService(_context);
         var result = sellCardCategoryService.ListExcludeAccount(paginationRequest, accountId);
-        var listDto = _mapper.Map<List<SellCardCategoryDto>>(result.Items).Select(p => { p.Account = null; return p; }).ToList();
+        var listDto = _mapper.Map<List<SellCardCategoryDto>>(result.Items).Select(p => {
+            p.Account.Id = "";
+            p.Account.Email = "";
+            p.Account.Id = "";
+            p.Account.CreatedTime = DateTime.MinValue;
+            p.Account.LastUpdatedTime = DateTime.MinValue;
+            p.Account.Point = 0;
+            return p;
+        }).ToList();
         var resultDto = new PaginationResult<SellCardCategoryDto>(listDto, result.TotalCount, result.PageNumber, result.MaxPageNumber, result.PageSize);
         AddSasToken(resultDto.Items);
         return new OkObjectResult(resultDto);
@@ -67,7 +75,15 @@ public class SellCardCategoryController : ControllerBase<SellCardCategoryControl
     public IActionResult ListByBuyer([FromQuery] PaginationRequest paginationRequest, [FromQuery] string transactionId) {
         var transactionDetailService = new TransactionDetailService(_context);
         var result = transactionDetailService.ListByBuyerTransactionId(paginationRequest, transactionId);
-        var listDto = _mapper.Map<List<SellCardCategoryDto>>(result.Items.Select(p => p.SellCardCategory)).ToList();
+        var listDto = _mapper.Map<List<SellCardCategoryDto>>(result.Items.Select(p => {
+            p.SellCardCategory.Account.Id = "";
+            p.SellCardCategory.Account.Email = "";
+            p.SellCardCategory.Account.Id = "";
+            p.SellCardCategory.Account.CreatedTime = DateTime.MinValue;
+            p.SellCardCategory.Account.LastUpdatedTime = DateTime.MinValue;
+            p.SellCardCategory.Account.Point = 0;
+            return p.SellCardCategory;
+        })).ToList();
         var resultDto = new PaginationResult<SellCardCategoryDto>(listDto, result.TotalCount, result.PageNumber, result.MaxPageNumber, result.PageSize);
         AddSasToken(resultDto.Items);
         return new OkObjectResult(resultDto);

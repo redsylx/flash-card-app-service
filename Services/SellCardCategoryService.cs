@@ -46,7 +46,7 @@ public class SellCardCategoryService : ServiceBase {
     
     public PaginationResult<SellCardCategory> ListExcludeAccount(PaginationRequest req, string accountId)
     {
-        var query = _context.SellCardCategory.Where(p => p.Account != null && p.Account.Id != accountId).AsQueryable();
+        var query = _context.SellCardCategory.Include(p => p.Account).Where(p => p.Account != null && p.Account.Id != accountId).AsQueryable();
         return GetPaginationResult(query, req);
     }
 }
